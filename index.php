@@ -1,11 +1,5 @@
 <?php
-    // use PHPMailer\PHPMailer\PHPMailer;
-    // use PHPMailer\PHPMailer\Exception;
-
-    // require 'PHPMailer/PHPMailer.php';
-    // require 'PHPMailer/SMTP.php';
-    // require 'PHPMailer/Exception.php';
-    
+  
     include 'EmailServer.php';
 
     $error = false;
@@ -15,9 +9,6 @@
     $name = "";
     $tel = "";
     $funct = "";
- 
-    // echo "outside";
-    // return;
 
     try {
         $data = json_decode(file_get_contents('php://input'), true);
@@ -26,14 +17,14 @@
         $info = $data['information'];   
         $tel = $data['tel'] ;
         $funct = $data['funct'];
-        print_r($data);
+        // print_r($data);
         // return;
         // echo "data";
         // return;
     }
     catch(Exception $e) {   
-        echo "error";
-        echo $e->errorMessage();
+        // echo "error";
+        // echo $e->errorMessage();
         $data = json_encode(array('status'=>false, 'msg'=>"Cannot get Inputs from POST."));
         echo $data;
         return;
@@ -45,15 +36,15 @@
     } else if(!checkInput($info)) {
         $error = true;
         $msg = "Please enter your agenda.";
+    } else if (!checkInput($funct)) {
+        $error = true;
+        $msg = "Function not found.";
     }
     if($error) {
         $data = json_encode(array('status'=>false, 'msg'=>$msg));
         echo $data;
         return;
     }
-    
-    // echo "before mail";
-    // return;
 
     // Send email
     try {        
@@ -72,7 +63,7 @@
     catch (Exception $e) {
         $error = true;
         $msg = $e->errorMessage();
-        echo $e->getMessage();
+        // echo $e->getMessage();
     }
 
     $data = json_encode(array('status'=>!$error, 'msg'=>$msg));

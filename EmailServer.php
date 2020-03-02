@@ -8,7 +8,7 @@
 
     class EmailServer {
         const FUNCT_WB = 'wb';
-        const FUNCT_ir = 'ir';
+        const FUNCT_IR = 'ir';
 
         private $_mailFromAddress = "";
         private $_mailFromName = "";
@@ -22,8 +22,7 @@
         public function __construct($funct, $config) {
             $this->funct = $funct;
             $this->_readConfig($config);
-
-            echo "Func: " . $this->funct . "\n";
+            // echo "Func: " . $this->funct . "\n";
         }
 
         public function send($name, $email, $tel, $info) {
@@ -37,6 +36,8 @@
                     case EmailServer::FUNCT_IR:
                         $this->_irMail();
                         break;
+                    default:
+                        return "Error: Function not found.";
                 }
 
                 $mail->isSMTP();
@@ -44,12 +45,12 @@
                 $mail->Username = $this->_config['mail_server']['username'];
                 $mail->Password = $this->_config['mail_server']['password'];
                 $mail->Port = $this->_config['mail_server']['port'];
-                print_r($this->_config);
+                // print_r($this->_config);
                 // print_r($mail);
 
-                echo "Setting addresses.\n";
-                echo "From Address: " . $this->_mailFromAddress ."\n";
-                echo "From Name: " . $this->_mailFromName ."\n";
+                // echo "Setting addresses.\n";
+                // echo "From Address: " . $this->_mailFromAddress ."\n";
+                // echo "From Name: " . $this->_mailFromName ."\n";
                 $mail->setFrom($this->_mailFromAddress, $this->_mailFromName);
                 $mail->addAddress($this->_mailToAddress, $this->_mailToName);
                 $mail->Subject = $this->_mailSubject;
@@ -58,9 +59,9 @@
                         "Tel: " . $tel . "<br />" .
                         "Information: " . $info .
                         "</html>");
-                echo "Finish setting addresses. \n";
+
                 // echo $mail->Body;
-                print_r($mail);
+                // print_r($mail);
         
                 if($mail->send()) {
                     $msg = "";
@@ -78,13 +79,13 @@
                 // PHPMailer exception
                 // $error = true;
                 $msg = $e->errorMessage();
-                echo $e->errorMessage();
+                // echo $e->errorMessage();
             }
             catch (Exception $e) {
                 // PHP exception
                 // $error = true;
                 $msg = $e->errorMessage();
-                echo $e->getMessage();
+                // echo $e->getMessage();
             }
 
             return $msg;
