@@ -1,107 +1,122 @@
 <?php
-    // use PHPMailer\PHPMailer\PHPMailer;
-    // use PHPMailer\PHPMailer\Exception;
+    use PHPMailer\PHPMailer\PHPMailer;
+    use PHPMailer\PHPMailer\Exception;
 
-    // require 'PHPMailer/PHPMailer.php';
-    // require 'PHPMailer/SMTP.php';
-    // require 'PHPMailer/Exception.php';
+    require 'PHPMailer/PHPMailer.php';
+    require 'PHPMailer/SMTP.php';
+    require 'PHPMailer/Exception.php';
 
     class EmailServer {
         const FUNCT_WB = 'wb';
-        const FUNCT_ir = 'ir';
+        const FUNCT_IR = 'ir';
 
-        private string $_mailFromAddress = "";
-        private string $_mailFromName = "";
-        private string $_mailToAddress = "";
-        private string $_mailToName = "";
-        private string $_mailSubject = "";
+        private $_mailFromAddress = "";
+        private $_mailFromName = "";
+        private $_mailToAddress = "";
+        private $_mailToName = "";
+        private $_mailSubject = "";
+        private $_config;
         
-        public string $funct = "";
-        public $config;
+        public $funct = "";
         
-
         public function __construct($funct, $config) {
-            // $this->funct = $funct;
-            // $this->_readConfig($config);
-
-            // echo "Func: " . $this->funct;
-            // echo "Config: " . $this->_readConfig;
+            $this->funct = $funct;
+            $this->_readConfig($config);
+            // echo "Func: " . $this->funct . "\n";
         }
 
-        // public function send($name, $email, $tel, $info) {
-        //     $mail = new PHPMailer(TRUE);
-        //     try {
+        public function send($name, $email, $tel, $info) {
+            $mail = new PHPMailer(TRUE);
+            try {
 
-        //         case ($this->funct) {
-        //             case FUNCT_WB:
-        //                 _wbMail();
-        //                 break;
-        //             case FUNCT_IR:
-        //                 _irMail();
-        //                 break;
-        //         }
+                switch ($this->funct) {
+                    case EmailServer::FUNCT_WB:
+                        $this->_wbMail();
+                        break;
+                    case EmailServer::FUNCT_IR:
+                        $this->_irMail();
+                        break;
+                    default:
+                        return "Error: Function not found.";
+                }
 
-        //         $mail->isSMTP();
-        //         $mail->Host = $config['mail_server']['host'];
-        //         $mail->Username = $config['mail_server']['username'];
-        //         $mail->Password = $config['mail_server']['password'];
-        //         $mail->Port = $config['mail_server']['port'];
+                $mail->isSMTP();
+                $mail->Host = $this->_config['mail_server']['host'];
+                $mail->Username = $this->_config['mail_server']['username'];
+                $mail->Password = $this->_config['mail_server']['password'];
+                $mail->Port = $this->_config['mail_server']['port'];
+                // print_r($this->_config);
+                // print_r($mail);
 
-        //         $mail->setFrom($this->_mailFromAddress, $this->_mailFromName);
-        //         $mail->addAddress($this->_mailToAddress, $this->_mailToName);
-        //         $mail->Subject = $this->_mailSubject;
-        //         $mail->msgHTML("<html><body>Name:" . $name . "<br />" .
-        //                 "Email: " . $email . "<br />" .
-        //                 "Tel: " . $tel . "<br />" .
-        //                 "Information: " . $info .
-        //                 "</html>");
-        //         //echo $mail->Body;
+                // echo "Setting addresses.\n";
+                // echo "From Address: " . $this->_mailFromAddress ."\n";
+                // echo "From Name: " . $this->_mailFromName ."\n";
+                $mail->setFrom($this->_mailFromAddress, $this->_mailFromName);
+                $mail->addAddress($this->_mailToAddress, $this->_mailToName);
+                $mail->Subject = $this->_mailSubject;
+                $mail->msgHTML("<html><body>Name:" . $name . "<br />" .
+                        "Email: " . $email . "<br />" .
+                        "Tel: " . $tel . "<br />" .
+                        "Information: " . $info .
+                        "</html>");
+
+                // echo $mail->Body;
+                // print_r($mail);
         
-        //         if($mail->send()) {
-        //             $msg = "Mail has been sent.";
-        //         }
+                if($mail->send()) {
+                    $msg = "";
+                    $error = false;
+                    // echo $msg;
+                } 
+                else {
+                    $msg = "Mail cannot be sent.";
+                    // echo $msg;
+                    $error = true;
+                }
         
-        //     }
-        //     catch (Exception $e) {
-        //         // PHPMailer exception
-        //         $error = true;
-        //         $msg = $e->errorMessage();
-        //         //echo $e->errorMessage();
-        //     }
-        //     catch (Exception $e) {
-        //         // PHP exception
-        //         $error = true;
-        //         $msg = $e->errorMessage();
-        //         //echo $e->getMessage();
-        //     }
-        // }
+            }
+            catch (Exception $e) {
+                // PHPMailer exception
+                // $error = true;
+                $msg = $e->errorMessage();
+                // echo $e->errorMessage();
+            }
+            catch (Exception $e) {
+                // PHP exception
+                // $error = true;
+                $msg = $e->errorMessage();
+                // echo $e->getMessage();
+            }
+
+            return $msg;
+        }
 
 
-        // private function _wbMail() {
-        //     $this->_mailFromAddress = $this->config['wb_mail_content']['from_email'];
-        //     $this->_mailFromName = $this->config['wb_mail_content']['from_name'];
-        //     $this->_mailToAddress = $this->config['wb_mail_content']['to_email'];
-        //     $this->_mailToName = $this->config['wb_mail_content']['to_name'];
-        //     $this->_mailSubject = $this->config['wb_mail_content']['subject'];
-        // }
+        private function _wbMail() {
+            $this->_mailFromAddress = $this->_config['wb_mail_content']['from_email'];
+            $this->_mailFromName = $this->_config['wb_mail_content']['from_name'];
+            $this->_mailToAddress = $this->_config['wb_mail_content']['to_email'];
+            $this->_mailToName = $this->_config['wb_mail_content']['to_name'];
+            $this->_mailSubject = $this->_config['wb_mail_content']['subject'];
+        }
 
-        // private function _irMail() {
-        //     $this->_mailFromAddress = $this->config['ir_mail_content']['from_email'];
-        //     $this->_mailFromName = $this->config['ir_mail_content']['from_name'];
-        //     $this->_mailToAddress = $this->config['ir_mail_content']['to_email'];
-        //     $this->_mailToName = $this->config['ir_mail_content']['to_name'];
-        //     $this->_mailSubject = $this->config['ir_mail_content']['subject'];
-        // }
+        private function _irMail() {
+            $this->_mailFromAddress = $this->_config['ir_mail_content']['from_email'];
+            $this->_mailFromName = $this->_config['ir_mail_content']['from_name'];
+            $this->_mailToAddress = $this->_config['ir_mail_content']['to_email'];
+            $this->_mailToName = $this->_config['ir_mail_content']['to_name'];
+            $this->_mailSubject = $this->_config['ir_mail_content']['subject'];
+        }
 
         private function _readConfig() {
             try {
-                $this->config = parse_ini_file("config.ini", true);                
+                $this->_config = parse_ini_file("config.ini", true);                
             }
-            catch($e) {
-                $this->config = "";
+            catch(Exception $e) {
+                $this->_config = "";
             }
 
-            if(empty($this->config))
+            if(empty($this->_config))
                 return false;
             else 
                 return true;
