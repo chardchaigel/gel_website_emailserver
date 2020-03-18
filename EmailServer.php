@@ -7,8 +7,8 @@
     require 'PHPMailer/Exception.php';
 
     class EmailServer {
-        const FUNCT_WB = 'wb';
-        const FUNCT_IR = 'ir';
+        const FUNCT_WB = 'wb';  // Whistle Blowing
+        const FUNCT_IR = 'ir';  // IR Contact
 
         private $_mailFromAddress = "";
         private $_mailFromName = "";
@@ -20,15 +20,15 @@
         public $funct = "";
         
         public function __construct($funct, $config) {
-            $this->funct = $funct;
-            $this->_readConfig($config);
-            // echo "Func: " . $this->funct . "\n";
+            $this->funct = $funct;          // Define which function the mail is for
+            $this->_readConfig($config);    // Read configurations
         }
 
         public function send($name, $email, $tel, $info) {
             $mail = new PHPMailer(TRUE);
             try {
 
+                // Specify SMTP config by the mail's function
                 switch ($this->funct) {
                     case EmailServer::FUNCT_WB:
                         $this->_wbMail();
@@ -45,12 +45,6 @@
                 $mail->Username = $this->_config['mail_server']['username'];
                 $mail->Password = $this->_config['mail_server']['password'];
                 $mail->Port = $this->_config['mail_server']['port'];
-                // print_r($this->_config);
-                // print_r($mail);
-
-                // echo "Setting addresses.\n";
-                // echo "From Address: " . $this->_mailFromAddress ."\n";
-                // echo "From Name: " . $this->_mailFromName ."\n";
                 $mail->setFrom($this->_mailFromAddress, $this->_mailFromName);
                 $mail->addAddress($this->_mailToAddress, $this->_mailToName);
                 $mail->Subject = $this->_mailSubject;
@@ -60,18 +54,13 @@
                         "Information: " . $info .
                         "</html>");
 
-                // echo $mail->Body;
-                // print_r($mail);
-        
                 if($mail->send()) {
                     $msg = "";
-                    $error = false;
-                    // echo $msg;
+                    // $error = false;
                 } 
                 else {
                     $msg = "Mail cannot be sent.";
-                    // echo $msg;
-                    $error = true;
+                    // $error = true;
                 }
         
             }
@@ -79,19 +68,18 @@
                 // PHPMailer exception
                 // $error = true;
                 $msg = $e->errorMessage();
-                // echo $e->errorMessage();
             }
             catch (Exception $e) {
                 // PHP exception
                 // $error = true;
                 $msg = $e->errorMessage();
-                // echo $e->getMessage();
             }
 
             return $msg;
         }
 
 
+        // Whistle Blowing Mail
         private function _wbMail() {
             $this->_mailFromAddress = $this->_config['wb_mail_content']['from_email'];
             $this->_mailFromName = $this->_config['wb_mail_content']['from_name'];
@@ -100,6 +88,7 @@
             $this->_mailSubject = $this->_config['wb_mail_content']['subject'];
         }
 
+        // IR Contact Mail
         private function _irMail() {
             $this->_mailFromAddress = $this->_config['ir_mail_content']['from_email'];
             $this->_mailFromName = $this->_config['ir_mail_content']['from_name'];
@@ -108,6 +97,7 @@
             $this->_mailSubject = $this->_config['ir_mail_content']['subject'];
         }
 
+        // Read configuration from the config.ini
         private function _readConfig() {
             try {
                 $this->_config = parse_ini_file("config.ini", true);                

@@ -11,20 +11,15 @@
     $funct = "";
 
     try {
+        // Get Inputs
         $data = json_decode(file_get_contents('php://input'), true);
         $name = $data['name'];
         $email = $data['email'];
         $info = $data['information'];   
         $tel = $data['tel'] ;
         $funct = $data['funct'];
-        // print_r($data);
-        // return;
-        // echo "data";
-        // return;
     }
     catch(Exception $e) {   
-        // echo "error";
-        // echo $e->errorMessage();
         $data = json_encode(array('status'=>false, 'msg'=>"Cannot get Inputs from POST."));
         echo $data;
         return;
@@ -63,7 +58,6 @@
     catch (Exception $e) {
         $error = true;
         $msg = $e->errorMessage();
-        // echo $e->getMessage();
     }
 
     $data = json_encode(array('status'=>!$error, 'msg'=>$msg));
@@ -72,7 +66,9 @@
     
     
 
-    // // ----------------------------- FUNCTIONS ------------------------------//
+    // ----------------------------- FUNCTIONS ------------------------------//
+
+    // Check whether the input is empty
     function checkInput($input) {
         if(!isset($input) || empty($input) || strlen(trim($input)) == 0) {
             return false;
@@ -81,9 +77,4 @@
         return true;
     }
 
-
-
-
-
-  
 ?>
